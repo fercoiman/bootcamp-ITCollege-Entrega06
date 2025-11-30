@@ -1,11 +1,20 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
+import { MONGO_URI, PERSISTENCE } from "./index.js";
 
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/palabrasdb";
+export async function connectDB() {
+  if (PERSISTENCE !== "mongo") {
+    console.log("[DB] PERSISTENCE != mongo, no se realiza conexión a MongoDB");
+    return;
+  }
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("Conectado a MongoDB"))
-  .catch((err) => console.error("Error al conectar a MongoDB:", err));
+  try {
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("[DB] Conectado a MongoDB");
+  } catch (error) {
+    console.error("[DB] Error al conectar a MongoDB:", error.message);
+    process.exit(1);
+  }
+}
